@@ -1,0 +1,24 @@
+#!/usr/bin/env php
+<?php
+
+function get_string_between($string, $start, $end){
+    $string = ' ' . $string;
+    $ini = strpos($string, $start);
+    if ($ini == 0) return '';
+    $ini += strlen($start);
+    $len = strpos($string, $end, $ini) - $ini;
+    return substr($string, $ini, $len);
+}
+
+if (empty($argv[1])) Die('You must provide the tunein page slug, example:'. $argv[0] .' "WNRN-919-s21535"'."\n");
+$contents = file_get_contents('http://tunein.com/radio/'.trim($argv[1]));
+$rawPayload = get_string_between($contents, 'TuneIn.payload = ', '}}}').'}}}';
+$payload = json_decode($rawPayload, true);
+if (!isset($payload['Station']['broadcast']['StreamUrl']) || empty($payload['Station']['broadcast']['StreamUrl'])) {
+	Die("Whoops, looks like TuneSnag does not recognize that payload!\nHere is a dump of the raw payload: \n\n" . $rawPayload . "\n\n");
+}
+$radioTimeURL = 'http:'.$payload['Station']['broadcast']['StreamUrl'];
+$radioTime = json_decode(get_string_between(file_get_contents($radioTimeURL), '( ', ');'), true);
+foreach ($radioTime['Streams'] as $stream) {
+	echo 'Bitrate ' . $stream['Bandwidth'] . ': ' . $stream['Url'] . "\n";
+}
