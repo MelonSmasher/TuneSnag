@@ -1,6 +1,6 @@
 # TuneSnag
 
-Quickly grab stream URLs from the Tunein Radio webiste.
+Quickly grab stream URLs from the Tunein Radio website.
 
 ---
 
